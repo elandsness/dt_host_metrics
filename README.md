@@ -24,9 +24,9 @@ Optional: -f (path to the file you wish to export data to)
 ```
 
 ### compiled
-MacOS: `hostmetrics-macos -k <key> -t <tenant> [-f <./path/to/file.csv>]`
-Linux: `hostmetrics-linux -k <key> -t <tenant> [-f <./path/to/file.csv>]`
-Windows: `hostmetrics-win.exe -k <key> -t <tenant> [-f <c:\path\to\file.csv>]`
+- MacOS: `hostmetrics-macos -k <key> -t <tenant> [-f <./path/to/file.csv>]`
+- Linux: `hostmetrics-linux -k <key> -t <tenant> [-f <./path/to/file.csv>]`
+- Windows: `hostmetrics-win.exe -k <key> -t <tenant> [-f <c:\path\to\file.csv>]`
 
 ### non-compiled
 `node bin.js -k <key> -t <tenant> [-f <./path/to/file.csv>]`
