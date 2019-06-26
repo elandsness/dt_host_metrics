@@ -1,3 +1,7 @@
+# executables
+hostmetrics-macos
+hostmetrics-win.exe
+
 # Logs
 logs
 *.log

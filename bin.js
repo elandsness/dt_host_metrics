@@ -9,6 +9,6 @@ var argv = require('yargs')
 // Store api key, tenant url and file path in constants for later use
 const KEY = argv.k;
 const TENANT = argv.t[argv.t.length -1] == '/' ? argv.t.slice(0, -1) : argv.t; // strip trailing slash if there is one
-const FILE = argv.f ? argv.f : './dt_data.csv';
+const FILE = argv.f ? argv.f : 'dt_data.csv';
 
 fetchdata(KEY, TENANT, FILE);
