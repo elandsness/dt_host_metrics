@@ -25,7 +25,7 @@ var argv = require('yargs')
 const KEY = argv.k;
 const TENANT = argv.t[argv.t.length -1] == '/' ? argv.t.slice(0, -1) : argv.t; // strip trailing slash if there is one
 const FILE = argv.f ? argv.f : 'dt_data.csv';
-const METRICS = argv.m.split(',');
+const METRICS = argv.m.toString().indexOf(',') < 0 ? [argv.m] : argv.m.split(',');
 const CANDIDATES = argv.c;
 
 let fail = false;

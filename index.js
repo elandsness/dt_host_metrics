@@ -16,9 +16,7 @@ module.exports = function(KEY, TENANT, FILE, METRICS, CANDIDATES){
 
     // Split the desired metrics into host and time, as they're handled differently
     METRICS.forEach(element => {
-        if (METRIC_OPTIONS[element].hasOwnProperty('function')) {
-            func_m.push(element);
-        } else if (METRIC_OPTIONS[element].type == 'host'){
+        if (METRIC_OPTIONS[element].type == 'host'){
             host_m.push(element);
         } else {
             time_m.push(element);
@@ -39,7 +37,11 @@ module.exports = function(KEY, TENANT, FILE, METRICS, CANDIDATES){
             data[response.data[x].entityId] = {};
             data[response.data[x].entityId].hostname = response.data[x].displayName
             host_m.forEach(element => {
-                data[response.data[x].entityId][METRIC_OPTIONS[element].metric] = response.data[x][METRIC_OPTIONS[element].metric];
+                if (response.data[x][METRIC_OPTIONS[element].metric] instanceof Object){
+                    data[response.data[x].entityId][METRIC_OPTIONS[element].metric] = response.data[x][METRIC_OPTIONS[element].metric].name;
+                } else {
+                    data[response.data[x].entityId][METRIC_OPTIONS[element].metric] = response.data[x][METRIC_OPTIONS[element].metric];
+                }
             })
         }
     }).catch(function (error) {
@@ -47,6 +49,6 @@ module.exports = function(KEY, TENANT, FILE, METRICS, CANDIDATES){
         console.log(error.message);
     }).finally(function () {
         // process timeseries metrics
-        process_timeseries(KEY, TENANT, FILE, time_m, data);
+        process_timeseries(KEY, TENANT, FILE, METRICS, time_m, data);
     });
 }
