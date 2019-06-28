@@ -13,7 +13,6 @@ module.exports = function(KEY, TENANT, FILE, METRICS, time_m, data) {
     
     // For updating the data object after special function processing
     const updateData = (result, metric) => {
-        console.log('updateData', data);
         if (Object.keys(result).length == 0){
             // Metric not available, so remove it from the result
             let index = METRICS.indexOf(metric);
@@ -30,12 +29,10 @@ module.exports = function(KEY, TENANT, FILE, METRICS, time_m, data) {
     // keep checking on  the data until everything is there before spitting out the file
     const check_complete = async () => {
         let k = Object.keys(data).slice(-1)[0];
-        console.log('checkData', data);
         let complete = false;
         let checkit  = setInterval(()=>{
             let num_metrics = Object.keys(data[k]).length - 1;
             let expected_metrics = METRICS.length;
-            console.log(num_metrics,'=>',expected_metrics);
             if (num_metrics < expected_metrics || complete == false){
                 for (let x  in data[k]){
                     complete = data[k][x] == undefined ? false : true;
@@ -68,7 +65,6 @@ module.exports = function(KEY, TENANT, FILE, METRICS, time_m, data) {
     axios.all(promiseArray)
     .then(async function(results) {
         for (let y in results){
-            console.log('axios_all', data);
             // handle success
             for (let x in results[y].data.dataResult.dataPoints){
                 let n = '';
