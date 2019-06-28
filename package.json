@@ -16,6 +16,7 @@
   "author": "Erik Landsness",
   "license": "ISC",
   "dependencies": {
+    "async": "^3.1.0",
     "axios": "^0.19.0",
     "file-system": "^2.2.2",
     "yargs": "^13.2.4"
@@ -23,7 +24,8 @@
   "pkg": {
     "targets": [
       "node10-macos-x64",
-      "node10-win-x64"
+      "node10-win-x64",
+      "node10-linux-x64"
     ]
   }
 }
