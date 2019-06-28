@@ -4,7 +4,7 @@ module.exports = function(data, METRICS, FILE){
 
     // Metric definitions
     const METRIC_OPTIONS = require('./metrics.js');
-
+console.log(data);
     // create the csv
     let metric_titles = ['dt_host_id','hostname']
     METRICS.forEach(element => {

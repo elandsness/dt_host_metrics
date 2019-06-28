@@ -10,49 +10,10 @@ module.exports = function(KEY, TENANT, FILE, METRICS, time_m, data) {
 
     // For all of the one off functions
     const functions = require('./functions.js');
-
-    // Function to handle standard metric calls
-    const get_metric = (n,m,callback,agr) => {
-        // Set default aggregation
-        agr = agr ? agr : 'avg';
-        // Endpoint for Dynatrace api to grab metric entries
-        let endpoint = `${TENANT}/api/v1/timeseries/${m}?includeData=true&relativeTime=day&aggregationType=${agr}`;
-        // To store data returned from function
-        let result = {};
-        // Make the api call
-        axios.get(endpoint, {
-            headers: {
-                'Authorization': `Api-Token ${KEY}`,
-                'Content-Type': 'application/json'
-            }
-        }).then(function (response) {
-            // handle success
-            for (var x in response.data.dataResult.dataPoints){
-                if (agr == 'avg'){
-                    let tmp_total = 0, tmp_count = 0;
-                    // get the avg value for the available datapoints
-                    for (var y in response.data.dataResult.dataPoints[x]){
-                        tmp_count++;
-                        tmp_total += response.data.dataResult.dataPoints[x][y][1];
-                    }
-                    result[x] = {};
-                    result[x][n] = tmp_total / tmp_count;
-                } else {
-                    result[x] = {};
-                    result[x][n] = response.data.dataResult.dataPoints[x].slice(-1)[0][1];
-                }
-            }
-        }).catch(function (error) {
-            // handle error
-            console.log(error.message);
-            return null;
-        }).finally(function () {
-            callback(result);
-        });
-    }
     
-    // For updating the data object after an api call
+    // For updating the data object after special function processing
     const updateData = (result, metric) => {
+        console.log('updateData', data);
         if (Object.keys(result).length == 0){
             // Metric not available, so remove it from the result
             let index = METRICS.indexOf(metric);
@@ -66,26 +27,33 @@ module.exports = function(KEY, TENANT, FILE, METRICS, time_m, data) {
         }
     }
 
-    // Function to process each metric
-    const process_timeseries = (element) => {
-        if (METRIC_OPTIONS[element].hasOwnProperty('function')){
-            functions[METRIC_OPTIONS[element]['function']](data,
-                async (result) => await updateData(result,METRIC_OPTIONS[element].metric));
-        } else {
-            get_metric(METRIC_OPTIONS[element].metric,
-                    METRIC_OPTIONS[element].api_metric,
-                    async (result) => await updateData(result,METRIC_OPTIONS[element].metric),
-                    METRIC_OPTIONS[element].method ? METRIC_OPTIONS[element].method : 'avg'
-                );
-        }
+    // keep checking on  the data until everything is there before spitting out the file
+    const check_complete = async () => {
+        let k = Object.keys(data).slice(-1)[0];
+        console.log('checkData', data);
+        let complete = false;
+        let checkit  = setInterval(()=>{
+            let num_metrics = Object.keys(data[k]).length - 1;
+            let expected_metrics = METRICS.length;
+            console.log(num_metrics,'=>',expected_metrics);
+            if (num_metrics < expected_metrics || complete == false){
+                for (let x  in data[k]){
+                    complete = data[k][x] == undefined ? false : true;
+                }
+            } else {
+                clearInterval(checkit);
+                process_csv(data, METRICS, FILE)
+            }
+        }, 250);
     }
 
-    // perform  all of the api calls
+    // prep  all of the api calls
     let urls = [];
     for (var x = 0; x < time_m.length; x++){
         if (METRIC_OPTIONS[time_m[x]].hasOwnProperty('function')){
-            functions[METRIC_OPTIONS[time_m[x]]['function']](data,
-                (result) => updateData(result,METRIC_OPTIONS[element].metric));
+            let tmp_m = METRIC_OPTIONS[time_m[x]].metric;
+            functions[METRIC_OPTIONS[time_m[x]]['function']](TENANT, KEY,
+                (result) => updateData(result,tmp_m));
         } else {
             let m = METRIC_OPTIONS[time_m[x]].api_metric;
             let agr = METRIC_OPTIONS[time_m[x]].method ? METRIC_OPTIONS[time_m[x]].method : 'avg';
@@ -94,12 +62,13 @@ module.exports = function(KEY, TENANT, FILE, METRICS, time_m, data) {
         }
     }
 
+    // perform all the api calls and update the csv
     axios.defaults.headers.common['Authorization'] = `Api-Token ${KEY}`;
     let promiseArray = urls.map(url => axios.get(url));
     axios.all(promiseArray)
     .then(async function(results) {
-        console.log(results.length)
         for (let y in results){
+            console.log('axios_all', data);
             // handle success
             for (let x in results[y].data.dataResult.dataPoints){
                 let n = '';
@@ -131,6 +100,6 @@ module.exports = function(KEY, TENANT, FILE, METRICS, time_m, data) {
                 }
             }
         }
-        process_csv(data, METRICS, FILE);
+        check_complete();
     });
 }
