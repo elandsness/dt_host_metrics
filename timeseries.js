@@ -20,7 +20,6 @@ module.exports = function(KEY, TENANT, FILE, METRICS, time_m, data) {
         } else if (Object.keys(result).length == 1){
             data[Object.keys(result)[0]][metric] = result[Object.keys(result)[0]][metric];
         } else {
-            console.log(result);
             for (let x in result){
                 data[x][metric] = result[x][metric];
             }

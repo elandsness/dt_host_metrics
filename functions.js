@@ -8,7 +8,6 @@ module.exports = {
         let ret_data = {}, mem_used = {}, r = {};
 
         const process_data = (callback) => {
-            console.log(mem_used)
             for (let x in mem_used){
                 if (!ret_data.hasOwnProperty(x)){
                     ret_data[x] = {};
@@ -53,13 +52,17 @@ module.exports = {
                         try {
                             mem_used[keys[x]].used_gb = (r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1].toFixed(2) / 1024 / 1024 / 1024).toFixed(2);
                         } catch(e) {
-                            console.log(r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1])
+                            if (r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1] == null){
+                                console.log(`Couldn't fetch mem_used of ${keys[x]}`)
+                            }
                         }
                     } else {
                         try {
                             mem_used[keys[x]].per_mem = r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1].toFixed(2);
                         } catch(e) {
-                            console.log(r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1])
+                            if (r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1] == null){
+                                console.log(`Couldn't fetch percent_mem_used of ${keys[x]}`)
+                            }
                         }
                     }
                 }
@@ -70,7 +73,6 @@ module.exports = {
                 }
                 ret_data[x]['totalMemory'] = Math.ceil(mem_used[x].used_gb * 100 / mem_used[x].per_mem);
             }
-            console.log(ret_data)
             callback(ret_data);
         });
     },
