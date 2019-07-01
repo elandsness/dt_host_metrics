@@ -5,43 +5,75 @@ const axios = require('axios');
 
 module.exports = {
     totalMemory: (TENANT, KEY, callback) => {
-        let mem_used = {};
-        let process_data =  async (results) => {
-            let x = Object.keys(results[0].data.dataResult.entities)[0];
-            mem_used[x] = {};
-            for (let y in results){
-                if (results[y].data.dataResult.timeseriesId == 'com.dynatrace.builtin:host.mem.used') {
-                    mem_used[x].used_gb = (results[y].data.dataResult.dataPoints[x].slice(-1)[0][1] / 1024 / 1024 / 1024).toFixed(2);
-                } else {
-                    try {
-                        mem_used[x].per_mem = results[y].data.dataResult.dataPoints[x].slice(-1)[0][1].toFixed(2);
-                    } catch(e) {
-                        await setTimeout(async () => {mem_used[x].per_mem = results[y].data.dataResult.dataPoints[x].slice(-1)[0][1].toFixed(2);}, 500);
+        let ret_data = {}, mem_used = {}, r = {};
+
+        const process_data = (callback) => {
+            for (let x in mem_used){
+                if (!ret_data.hasOwnProperty(x)){
+                    ret_data[x] = {};
+                }
+                ret_data[x]['totalMemory'] = Math.ceil(mem_used[x].used_gb * 100 / mem_used[x].per_mem);
+            }
+            callback(ret_data);
+        }
+
+        const fetch_data = (callback) => {
+            for (let y in r){
+                let keys = Object.keys(r[y].data.dataResult.entities);
+                for (let x in keys){
+                    if (!mem_used.hasOwnProperty(keys[x])){
+                        mem_used[keys[x]] = {};
+                    }
+                    if (r[y].data.dataResult.timeseriesId == 'com.dynatrace.builtin:host.mem.used') {
+                        mem_used[keys[x]].used_gb = (r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1].toFixed(2) / 1024 / 1024 / 1024).toFixed(2);
+                    } else {
+                        mem_used[keys[x]].per_mem = r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1].toFixed(2);
                     }
                 }
             }
+            callback(null);
         }
+
         let urls = [`${TENANT}/api/v1/timeseries/com.dynatrace.builtin:host.mem.used?includeData=true&relativeTime=day&aggregationType=avg`,
-                        `${TENANT}/api/v1/timeseries/com.dynatrace.builtin:host.mem.availablepercentage?includeData=true&relativeTime=day&aggregationType=avg`],
-            ret_data = {};
+                        `${TENANT}/api/v1/timeseries/com.dynatrace.builtin:host.mem.availablepercentage?includeData=true&relativeTime=day&aggregationType=avg`];
         // get memory used and percent free to calculate total memory
         axios.defaults.headers.common['Authorization'] = `Api-Token ${KEY}`;
         let promiseArray = urls.map(url => axios.get(url));
         axios.all(promiseArray)
-        .then(async function(results) {
-            process_data(results).then(async () => {
-                for (let x in mem_used){
-                    if (!ret_data.hasOwnProperty(x)){
-                        ret_data[x] = {};
+        .then(async (results) => {
+            r = results;
+            for (let y in r){
+                let keys = Object.keys(r[y].data.dataResult.entities);
+                for (let x in keys){
+                    if (!mem_used.hasOwnProperty(keys[x])){
+                        mem_used[keys[x]] = {};
                     }
-                    try{
-                        ret_data[x]['totalMemory'] = Math.ceil(mem_used[x].used_gb * 100 / mem_used[x].per_mem);
-                    } catch(e) {
-                        setTimeout(async () => {ret_data[x]['totalMemory'] = Math.ceil(mem_used[x].used_gb * 100 / mem_used[x].per_mem);}, 500);
+                    if (r[y].data.dataResult.timeseriesId == 'com.dynatrace.builtin:host.mem.used') {
+                        try {
+                            mem_used[keys[x]].used_gb = (r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1].toFixed(2) / 1024 / 1024 / 1024).toFixed(2);
+                        } catch(e) {
+                            if (r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1] == null){
+                                console.log(`Couldn't fetch mem_used of ${keys[x]}`)
+                            }
+                        }
+                    } else {
+                        try {
+                            mem_used[keys[x]].per_mem = r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1].toFixed(2);
+                        } catch(e) {
+                            if (r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1] == null){
+                                console.log(`Couldn't fetch percent_mem_used of ${keys[x]}`)
+                            }
+                        }
                     }
                 }
-                await callback(ret_data);
-            });
+            }
+            for (let x in mem_used){
+                if (!ret_data.hasOwnProperty(x)){
+                    ret_data[x] = {};
+                }
+                ret_data[x]['totalMemory'] = Math.ceil(mem_used[x].used_gb * 100 / mem_used[x].per_mem);
+            }
+            callback(ret_data);
         });
     },
     memoryUsed: (TENANT, KEY, callback) => {
