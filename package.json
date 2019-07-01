@@ -2,7 +2,7 @@
   "name": "hostmetrics",
   "version": "1.0.0",
   "description": "Dynatrace Host Metrics",
-  "main": "index.js",
+  "main": "bin.js",
   "bin": "bin.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -15,6 +15,7 @@ var argv = require('yargs')
     .describe('t', "Dynatrace tenant url: \n" +
         "Managed: https://{your-domain}/e/{your-environment-id}/ \n" +
         "SaaS: https://{your-environment-id}.live.dynatrace.com/")
+    .describe('f', 'Path to write data to. Defaults to ./dt_data.csv')
     .describe('m','Desired metrics (see below)')
     .describe('c','Include monitoring candidates?')
     .demandOption(['k','t','m'])
