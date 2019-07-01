@@ -20,24 +20,20 @@ module.exports = function(KEY, TENANT, FILE, METRICS, time_m, data) {
         } else if (Object.keys(result).length == 1){
             data[Object.keys(result)[0]][metric] = result[Object.keys(result)[0]][metric];
         } else {
-            result.forEach(element => {
-                data[element][metric] = result[element][metric];
-            });
+            console.log(result);
+            for (let x in result){
+                data[x][metric] = result[x][metric];
+            }
         }
     }
 
     // keep checking on  the data until everything is there before spitting out the file
     const check_complete = async () => {
         let k = Object.keys(data).slice(-1)[0];
-        let complete = false;
         let checkit  = setInterval(()=>{
             let num_metrics = Object.keys(data[k]).length - 1;
             let expected_metrics = METRICS.length;
-            if (num_metrics < expected_metrics || complete == false){
-                for (let x  in data[k]){
-                    complete = data[k][x] == undefined ? false : true;
-                }
-            } else {
+            if (num_metrics >= expected_metrics){
                 clearInterval(checkit);
                 process_csv(data, METRICS, FILE)
             }
