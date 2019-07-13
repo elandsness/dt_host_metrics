@@ -125,5 +125,35 @@ module.exports = {
             // handle error
             console.log(error.message);
         })
+    },
+    softwareTechnologies: (TENANT, KEY, HOST, callback) =>  {
+        endpoint = `${TENANT}/api/v1/entity/infrastructure/processes?host=${HOST}`;
+        axios.get(endpoint, {
+            headers: {
+                'Authorization': `Api-Token ${KEY}`,
+                'Content-Type': 'application/json'
+            }
+        }).then(async function (response) {
+            // handle success
+            let ret_data = {};
+            ret_data[HOST] = {};
+            ret_data[HOST].softwareTechnologies = {};
+            for (var x in response.data){
+                if (response.data[x].hasOwnProperty('softwareTechnologies')){
+                    for (var y in response.data[x].softwareTechnologies){
+                        if (ret_data[HOST].softwareTechnologies.hasOwnProperty(response.data[x].softwareTechnologies[y].type)){
+                            ret_data[HOST].softwareTechnologies[response.data[x].softwareTechnologies[y].type] += 1;
+                        }  else {
+                            ret_data[HOST].softwareTechnologies[response.data[x].softwareTechnologies[y].type] = 1;
+                        }
+                    }
+                }
+            }
+            ret_data[HOST].softwareTechnologies = JSON.stringify(ret_data[HOST].softwareTechnologies).replace('{','').replace('}','');
+            await callback(ret_data);
+        }).catch(function (error) {
+            // handle error
+            console.log(error);
+        })
     }
 }

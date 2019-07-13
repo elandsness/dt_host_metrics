@@ -8,6 +8,20 @@ module.exports = function(KEY, TENANT, FILE, METRICS, CANDIDATES){
     // For outputting data to file
     const process_timeseries = require('./timeseries.js');
 
+    // For all of the one off functions
+    const functions = require('./functions.js');
+
+    // For updating the data object after special function processing
+    const updateData = (result, metric) => {
+        if (Object.keys(result).length == 1){
+            data[Object.keys(result)[0]][metric] = result[Object.keys(result)[0]][metric].replace(/\,/g,'; ').replace(/\"/g, '');
+        } else {
+            for (let x in result){
+                data[x][metric] = result[x][metric].replace(/\,/g,'; ').replace(/\"/g, '');
+            }
+        }
+    }
+
     // Object to store objects to build lines of csv
     let data = {};
 
@@ -37,10 +51,15 @@ module.exports = function(KEY, TENANT, FILE, METRICS, CANDIDATES){
             data[response.data[x].entityId] = {};
             data[response.data[x].entityId].hostname = response.data[x].displayName
             host_m.forEach(element => {
-                if (response.data[x][METRIC_OPTIONS[element].metric] instanceof Object){
-                    data[response.data[x].entityId][METRIC_OPTIONS[element].metric] = response.data[x][METRIC_OPTIONS[element].metric].name;
+                if (METRIC_OPTIONS[element].hasOwnProperty("function")) {
+                    functions[METRIC_OPTIONS[element]['function']](TENANT, KEY, response.data[x].entityId,
+                        (result) => updateData(result,METRIC_OPTIONS[element].metric));
                 } else {
-                    data[response.data[x].entityId][METRIC_OPTIONS[element].metric] = response.data[x][METRIC_OPTIONS[element].metric];
+                    if (response.data[x][METRIC_OPTIONS[element].metric] instanceof Object){
+                        data[response.data[x].entityId][METRIC_OPTIONS[element].metric] = response.data[x][METRIC_OPTIONS[element].metric].name;
+                    } else {
+                        data[response.data[x].entityId][METRIC_OPTIONS[element].metric] = response.data[x][METRIC_OPTIONS[element].metric];
+                    }
                 }
             })
         }

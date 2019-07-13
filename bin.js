@@ -1,4 +1,4 @@
-const fetchdata = require('.')
+const fetchdata = require('./index.js')
 
 const METRIC_OPTIONS = require('./metrics.js');
 
