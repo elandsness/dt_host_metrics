@@ -68,5 +68,11 @@ module.exports = {
         'api_metric': 'com.dynatrace.builtin:host.cpu.idle',
         'method': 'avg',
         'desc': 'Average free available CPU over last 24 hours'
+    },
+    13: {
+        'type': 'host',
+        'metric': 'softwareTechnologies',
+        'function': 'softwareTechnologies',
+        'desc': 'List of technologies running on the host'
     }
 }

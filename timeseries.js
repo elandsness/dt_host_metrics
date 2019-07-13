@@ -28,10 +28,12 @@ module.exports = function(KEY, TENANT, FILE, METRICS, time_m, data) {
 
     // keep checking on  the data until everything is there before spitting out the file
     const check_complete = async () => {
-        let k = Object.keys(data).slice(-1)[0];
         let checkit  = setInterval(()=>{
-            let num_metrics = Object.keys(data[k]).length - 1;
+            let num_metrics = 0;
             let expected_metrics = METRICS.length;
+            for (let x in data){
+                num_metrics = num_metrics == 0 || Object.keys(data[x]).length - 1 < num_metrics ? Object.keys(data[x]).length - 1 : num_metrics;
+            }
             if (num_metrics >= expected_metrics){
                 clearInterval(checkit);
                 process_csv(data, METRICS, FILE)
