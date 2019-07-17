@@ -12,6 +12,7 @@ Simple cmd line tool that uses the Dynatrace API to gather host level metrics fo
 10. availability = Current state of the host
 11. availabilityPercent = Host availability percent over last 24 hours
 12. freeCPU = Average free available CPU over last 24 hours
+13. softwareTechnologies = The list of technologies and number of each running
 
 ## Requirements
 - NPM
@@ -43,9 +44,9 @@ Optional: -c (flag to include monitoring candidates. leave off option to exclude
 ```
 
 ### compiled
-- MacOS: `hostmetrics-macos -k <key> -t <tenant> [-f <./path/to/file.csv>] -m 1,2,3,4,5,6,7,8,9,10,11,12 [-c]`
-- Linux: `hostmetrics-linux -k <key> -t <tenant> [-f <./path/to/file.csv>] -m 1,2,3,4,5,6,7,8,9,10,11,12 [-c]`
-- Windows: `hostmetrics-win.exe -k <key> -t <tenant> [-f <c:\path\to\file.csv>] -m 1,2,3,4,5,6,7,8,9,10,11,12 [-c]`
+- MacOS: `hostmetrics-macos -k <key> -t <tenant> [-f <./path/to/file.csv>] -m 1,2,3,4,5,6,7,8,9,10,11,12,13 [-c]`
+- Linux: `hostmetrics-linux -k <key> -t <tenant> [-f <./path/to/file.csv>] -m 1,2,3,4,5,6,7,8,9,10,11,12,13 [-c]`
+- Windows: `hostmetrics-win.exe -k <key> -t <tenant> [-f <c:\path\to\file.csv>] -m 1,2,3,4,5,6,7,8,9,10,11,12,13 [-c]`
 
 ### non-compiled
-`node bin.js -k <key> -t <tenant> [-f <./path/to/file.csv>] -m 1,2,3,4,5,6,7,8,9,10,11,12 [-c]`
+`node bin.js -k <key> -t <tenant> [-f <./path/to/file.csv>] -m 1,2,3,4,5,6,7,8,9,10,11,12,13 [-c]`
