@@ -34,7 +34,7 @@ module.exports = {
             callback(null);
         }
 
-        let urls = [`${TENANT}/api/v1/timeseries/com.dynatrace.builtin:host.mem.used?includeData=true&relativeTime=day&aggregationType=avg`,
+        let urls = [`${TENANT}/api/v1/timeseries/com.dynatrace.builtin:host.mem.available?includeData=true&relativeTime=day&aggregationType=avg`,
                         `${TENANT}/api/v1/timeseries/com.dynatrace.builtin:host.mem.availablepercentage?includeData=true&relativeTime=day&aggregationType=avg`];
         // get memory used and percent free to calculate total memory
         axios.defaults.headers.common['Authorization'] = `Api-Token ${KEY}`;
@@ -48,7 +48,7 @@ module.exports = {
                     if (!mem_used.hasOwnProperty(keys[x])){
                         mem_used[keys[x]] = {};
                     }
-                    if (r[y].data.dataResult.timeseriesId == 'com.dynatrace.builtin:host.mem.used') {
+                    if (r[y].data.dataResult.timeseriesId == 'com.dynatrace.builtin:host.mem.available') {
                         try {
                             mem_used[keys[x]].used_gb = (r[y].data.dataResult.dataPoints[keys[x]].slice(-1)[0][1].toFixed(2) / 1024 / 1024 / 1024).toFixed(2);
                         } catch(e) {
