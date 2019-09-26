@@ -9,7 +9,7 @@ for (var x in METRIC_OPTIONS){
 
 // Handle command line args
 var argv = require('yargs')
-    .usage('Usage: $0 -k [api key] -t [tenant url] -f [output file] -m [select metrics 0,1,2,3,4,5,6,etc] -c')
+    .usage('Usage: $0 -k [api key] -t [tenant url] -f [output file] -m [select metrics 1,2,3,4,5,6,etc] -c')
     .boolean('c')
     .describe('k','Dynatrace API Key')
     .describe('t', "Dynatrace tenant url: \n" +
